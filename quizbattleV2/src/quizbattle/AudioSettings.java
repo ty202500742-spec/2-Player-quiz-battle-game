@@ -39,11 +39,12 @@ public class AudioSettings {
      * Convert a 0-100 int volume to a Minim gain value (dB).
      * vol=100 → 0 dB (full),  vol=0 → -80 dB (silent).
      */
-    public static float toGain(int vol) {
-        if (vol <= 0) return -80f;
-        // Map 0-100 → -40 to 0 dB (log-ish feel via simple linear in this range)
-        return -40f + (vol / 100f) * 40f;
-    }
+   public static float toGain(int vol) {
+    if (vol <= 0) return -80f;
+
+    
+    return (float)(20f * Math.log10(vol / 100.0));
+}
 
     private int clamp(int v) { return Math.max(0, Math.min(100, v)); }
 }

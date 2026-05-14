@@ -310,6 +310,7 @@ public class OverlayManager {
     // ═════════════════════════════════════════════════════════════════════════
     public void showMenuConfirm(Runnable onExitToMenu) {
         if (menuConfirmPanel != null) return;
+        isPaused = true;  
         audio.muffleMusic(true);
 
         int W = host.getWidth(), H = host.getHeight();
@@ -372,7 +373,7 @@ public class OverlayManager {
         exitBtn.setBounds(16, btnY, btnW, 38);
         exitBtn.addActionListener(e -> {
             audio.playClick();
-            dismissMenuConfirm();
+            dismissMenuConfirmSilent();
             onExitToMenu.run();
         });
         card.add(exitBtn);
@@ -394,10 +395,20 @@ public class OverlayManager {
         if (menuConfirmPanel == null) return;
         if (confirmTimer != null) confirmTimer.stop();
         host.remove(menuConfirmPanel); menuConfirmPanel = null; confirmAlpha = 0f;
+        isPaused = false;
         audio.muffleMusic(false);
         host.revalidate(); host.repaint(); host.requestFocusInWindow();
     }
-
+    
+    public void dismissMenuConfirmSilent() {
+    if (menuConfirmPanel == null) return;
+    if (confirmTimer != null) confirmTimer.stop();
+    isPaused = false;
+    host.remove(menuConfirmPanel); menuConfirmPanel = null; confirmAlpha = 0f;
+    // isPaused stays true — we're leaving anyway
+    host.revalidate(); host.repaint();
+}
+    
     /** Dismisses every overlay at once — used by resetGame(). */
     public void dismissAll() {
         dismissMenuConfirm();
