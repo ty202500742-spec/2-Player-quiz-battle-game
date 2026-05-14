@@ -26,6 +26,13 @@ public class AudioManager {
     private AudioPlayer sfxAttack;
     private AudioPlayer sfxWrong;
     private AudioPlayer sfxGameOver;
+    private AudioPlayer sfxShield;
+    private AudioPlayer sfxStrike;
+    private AudioPlayer sfxDouble;
+    private AudioPlayer sfxDrain;
+    private AudioPlayer sfxCurse;
+    private AudioPlayer sfxLethal;
+    private AudioPlayer bgMenu;
 
     // ── Volume constants ──────────────────────────────────────────────────────
     private static final float MUSIC_MUFFLED_OFFSET = -20.0f;
@@ -79,6 +86,13 @@ public class AudioManager {
             tryLoad("assets/audio/Error.mp3",    p -> sfxWrong    = p);
             tryLoad("assets/audio/GameOver1.mp3", p -> sfxGameOver = p);
             tryLoad("assets/audio/End.mp3",       p -> bgVictory   = p);
+            tryLoad("assets/audio/SfxShield.mp3", p -> sfxShield = p);
+            tryLoad("assets/audio/SfxStrike.mp3", p -> sfxStrike = p);
+            tryLoad("assets/audio/SfxDouble.mp3", p -> sfxDouble = p);
+            tryLoad("assets/audio/SfxDrain.mp3",  p -> sfxDrain  = p);
+            tryLoad("assets/audio/SfxCurse.mp3",  p -> sfxCurse  = p);
+            tryLoad("assets/audio/SfxLethal.mp3", p -> sfxLethal = p);
+            tryLoad("assets/audio/MusicMenu.mp3", p -> bgMenu = p);
 
             applyMusicVolume();
             applySfxVolume();
@@ -100,6 +114,7 @@ public class AudioManager {
         float base = AudioSettings.toGain(AudioSettings.get().getMusicVolume());
         if (bgMusic   != null) bgMusic.setGain(musicMuffled ? base + MUSIC_MUFFLED_OFFSET : base);
         if (bgVictory != null) bgVictory.setGain(base);
+        if (bgMenu != null) bgMenu.setGain(base);
     }
 
     public void applySfxVolume() {
@@ -109,6 +124,12 @@ public class AudioManager {
         if (sfxAttack   != null) sfxAttack.setGain(g);
         if (sfxWrong    != null) sfxWrong.setGain(g);
         if (sfxGameOver != null) sfxGameOver.setGain(g);
+        if (sfxShield  != null) sfxShield.setGain(g);
+        if (sfxStrike  != null) sfxStrike.setGain(g);
+        if (sfxDouble  != null) sfxDouble.setGain(g);
+        if (sfxDrain   != null) sfxDrain.setGain(g);
+        if (sfxCurse   != null) sfxCurse.setGain(g);
+        if (sfxLethal  != null) sfxLethal.setGain(g);
     }
 
     public void muffleMusic(boolean muffle) {
@@ -130,7 +151,17 @@ public class AudioManager {
             applyMusicVolume();
         }
     }
+    public void startMenuMusic() {
+    if (bgMenu != null) {
+        bgMenu.rewind();
+        bgMenu.loop();
+        applyMusicVolume();
+    }
+}
 
+public void pauseMenuMusic() {
+    if (bgMenu != null) bgMenu.pause();
+}
     public void startVictoryMusic() {
         if (bgVictory != null) {
             bgVictory.rewind();
@@ -166,6 +197,19 @@ public class AudioManager {
     public void playGameOver() {
         playSfx(sfxGameOver);
     }
+    
+    public void playShield() { 
+        playSfx(sfxShield); }
+    public void playStrike() { 
+        playSfx(sfxStrike); }
+    public void playDouble() { 
+        playSfx(sfxDouble); }
+    public void playDrain() { 
+        playSfx(sfxDrain); }
+    public void playCurse() {
+        playSfx(sfxCurse); }
+    public void playLethal() { 
+        playSfx(sfxLethal); }
 
     /** Rewinds and plays a sound-effect player at the current SFX gain. */
     private void playSfx(AudioPlayer p) {
@@ -187,6 +231,13 @@ public class AudioManager {
             closePlayer(sfxAttack);   sfxAttack   = null;
             closePlayer(sfxWrong);    sfxWrong    = null;
             closePlayer(sfxGameOver); sfxGameOver = null;
+            closePlayer(sfxShield);  sfxShield  = null;
+            closePlayer(sfxStrike);  sfxStrike  = null;
+            closePlayer(sfxDouble);  sfxDouble  = null;
+            closePlayer(sfxDrain);   sfxDrain   = null;
+            closePlayer(sfxCurse);   sfxCurse   = null;
+            closePlayer(sfxLethal);  sfxLethal  = null;
+            closePlayer(bgMenu); bgMenu = null;
             if (audioLoader != null) { audioLoader.stop(); audioLoader = null; }
         } catch (Exception e) {
             System.err.println("[AudioManager] Error releasing audio: " + e.getMessage());
@@ -197,6 +248,8 @@ public class AudioManager {
         if (p != null) { p.pause(); p.close(); }
     }
 
+    
+    
     /** Call after stopAll() if the panel is re-shown (e.g. after returning from menu). */
     public void reinit() {
         if (audioLoader == null) initAudio();

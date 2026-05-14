@@ -14,13 +14,16 @@ public class MainMenu extends JPanel {
 
     // --- Background Image ---
     private Image backgroundImage;
-
+    
     // --- Audio ---
     Minim loader;
     AudioPlayer song;
     AudioPlayer sfxHover;
     AudioPlayer sfxClick;
-
+    private AudioManager audio;
+    public void setAudioManager(AudioManager am) {
+    this.audio = am;
+}
     private final Color BG_DARK   = new Color(15, 15, 25);
     private final Color BG_CARD   = new Color(22, 22, 38);
     private final Color ACCENT    = new Color(99, 102, 241);
@@ -35,24 +38,23 @@ public class MainMenu extends JPanel {
 
     private float fadeAlpha = 0f;
     private Timer fadeTimer;
-
+    private static AudioPlayer menuSongInstance;
     public MainMenu(QuizBattle controller) {
         this.controller = controller;
         setLayout(new BorderLayout());
         setBackground(BG_DARK);
-
+        
         backgroundImage = new ImageIcon("assets/images/backgroundM.png").getImage();
 
         loader   = new Minim(this);
-        song     = loader.loadFile("MusicMenu.mp3");
+      
         sfxHover = loader.loadFile("Hover.mp3");
         sfxClick = loader.loadFile("Click.mp3");
-
-        if (song != null) {
-            song.loop();
-            song.setGain(AudioSettings.toGain(AudioSettings.get().getMusicVolume()));
-        }
-
+        if (menuSongInstance == null) {
+    menuSongInstance = loader.loadFile("MusicMenu.mp3");
+}
+song = menuSongInstance;
+        resumeMenuMusic();
         // Fade-in animation
         fadeAlpha = 0f;
         fadeTimer = new Timer(16, e -> {
@@ -428,6 +430,7 @@ public class MainMenu extends JPanel {
             musicVal.setText(v + "%");
             as.setMusicVolume(v);
             if (song != null) song.setGain(AudioSettings.toGain(v));
+             if (audio != null) audio.applyMusicVolume();
         });
         card.add(musicSlider);
 
@@ -495,8 +498,12 @@ public class MainMenu extends JPanel {
         if (song == null) song = loader.loadFile("MusicMenu.mp3");
         if (song != null) {
             song.rewind();
-            song.loop();
-            song.setGain(AudioSettings.toGain(AudioSettings.get().getMusicVolume()));
+
+song.setGain(AudioSettings.toGain(
+    AudioSettings.get().getMusicVolume()
+));
+
+song.loop();
         }
     }
 

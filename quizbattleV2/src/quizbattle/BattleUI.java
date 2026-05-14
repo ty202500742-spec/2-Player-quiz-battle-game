@@ -86,6 +86,7 @@ public class BattleUI {
 
     /** Call after every resize so components are repositioned correctly. */
     public void layoutAll(int W, int H, GameOverlayPanel gameOverPanel) {
+        
         // Remove all children except the game-over overlay
         Component gameOverComponent = (gameOverPanel != null) ? gameOverPanel.asComponent() : null;
         for (Component c : host.getComponents()) {
@@ -117,8 +118,10 @@ public class BattleUI {
             host.add(gameOverPanel.asComponent());
             gameOverPanel.reposition(W, H);
             host.setComponentZOrder(gameOverPanel.asComponent(), 0);
+            
+            
         }
-
+        
         host.revalidate();
         host.repaint();
     }

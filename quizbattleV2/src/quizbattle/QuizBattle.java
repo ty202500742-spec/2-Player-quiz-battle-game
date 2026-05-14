@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class QuizBattle extends JFrame {
+     private AudioManager audioManager;
     
     private CardLayout cardLayout = new CardLayout();
     private JPanel mainContainer = new JPanel(cardLayout);
@@ -11,42 +12,46 @@ public class QuizBattle extends JFrame {
     private MainMenu mainMenu;  // ← keep a reference so we can control its music
 
     public QuizBattle() {
-        setTitle("Quiz Battle - WMSU CS Edition");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setResizable(false);
+    setTitle("Quiz Battle");
+    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    setResizable(false);
 
-        mainMenu    = new MainMenu(this);   // ← store in field
-        battlePanel = new BattlePanel(this);
+    mainMenu     = new MainMenu(this);
+    audioManager = new AudioManager(mainMenu);
+    battlePanel  = new BattlePanel(this, audioManager);
 
-        mainContainer.add(mainMenu,    "MENU");
-        mainContainer.add(battlePanel, "GAME");
-        add(mainContainer);
+    // Give MainMenu its audio reference BEFORE showPanel is called
+    mainMenu.setAudioManager(audioManager);
 
-        Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-        int w = Math.min(900,  screen.width  - 40);
-        int h = Math.min(780, screen.height - 60);
-        setSize(w, h);
-        setLocationRelativeTo(null);
+    mainContainer.add(mainMenu,    "MENU");
+    mainContainer.add(battlePanel, "GAME");
+    add(mainContainer);
 
-        showPanel("MENU");
-    }
+    Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+    int w = Math.min(900,  screen.width  - 40);
+    int h = Math.min(780, screen.height - 60);
+    setSize(w, h);
+    setLocationRelativeTo(null);
+
+    showPanel("MENU"); // now safe — audioManager is wired up
+}
 
     public void setDifficulty(String diff) {
         battlePanel.setDifficulty(diff);
     }
 
     public void showPanel(String name) {
-        cardLayout.show(mainContainer, name);
-
-        if (name.equals("MENU")) {
-            mainMenu.resumeMenuMusic();             // ← restart MusicMenu.mp3 when returning
-        }
-
-        if (name.equals("GAME")) {
-            mainContainer.getComponent(1).requestFocusInWindow();
-            battlePanel.resetGame();                // ← starts MusicBattle.mp3 inside resetGame()
-        }
+    cardLayout.show(mainContainer, name);
+    if (name.equals("MENU")) {
+         battlePanel.pauseTimers(); 
+        audioManager.startMenuMusic();   
     }
+    if (name.equals("GAME")) {
+        audioManager.pauseMenuMusic();   // ← stop menu music when game starts
+        mainContainer.getComponent(1).requestFocusInWindow();
+        battlePanel.resetGame();
+    }
+}
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
